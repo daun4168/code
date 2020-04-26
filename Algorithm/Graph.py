@@ -65,6 +65,7 @@ if __name__ == '__main__':
     graph.addEdge(3, 5, 2)
     graph.removeEdge(1, 3)
     src = 1
-    
+
     for key, value in graph.dijkstra(src)[0].items():
         print(f'{src} to {key} : {value}')
+
