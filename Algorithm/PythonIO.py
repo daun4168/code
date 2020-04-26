@@ -4,6 +4,7 @@ line = []
 line_len = 0
 line_index = 0
 
+
 class Unbuffered:
     def __init__(self, stream):
         self.stream = stream
