@@ -1,0 +1,28 @@
+{
+	"version": "2.0.0",
+	"runner": "terminal",
+	"echoCommand": true,
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "g++ build active file",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-g",
+				"${fileDirname}/*.cpp",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "/usr/bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
