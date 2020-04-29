@@ -14,11 +14,17 @@ constexpr T pow(const T x, unsigned const n) {
                 : n % 2 == 0 ? pow(x * x, n / 2) : pow(x * x, (n - 1) / 2) * x;
 }
 
-void *memset(void *s, int c, unsigned long n) {
-  unsigned char *p = static_cast<unsigned char *>(s);
-  while (n--) *p++ = static_cast<unsigned char>(c);
-  return s;
+template <typename T>
+void memset(T *s, const T c, unsigned long n) {
+  while (n--) *s++ = c;
 }
+
+void memcpy(void *dest, const void *src, unsigned long count) {
+  char *tmp = static_cast<char*>(dest);
+  const char *s = static_cast<const char*>(src);
+  while (count--) *tmp++ = *s++;
+}
+
 
 
 template <typename DataType>
