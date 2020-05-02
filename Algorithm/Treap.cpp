@@ -1,5 +1,6 @@
-//#pragma once
+// #pragma once
 #include <utility>
+#include <cstdlib>
 template <typename K>
 class Treep {
  public:
@@ -8,7 +9,7 @@ class Treep {
     K key;
     int priority, size;
     Node *left, *right;
-    Node(const K& _key, )
+    Node(const K& _key)
         : key(_key), priority(rand()), size(1), left(nullptr), right(nullptr) {}
     void setLeft(Node* newLeft) {
       left = newLeft;
@@ -24,7 +25,7 @@ class Treep {
       if (right != nullptr) size += right->size;
     }
   };
-  typedef pair<Node*, Node*> NP;
+  typedef std::pair<Node*, Node*> NP;
   Treep() {}
   ~Treep() {
     while (root_ != nullptr) {
@@ -44,12 +45,13 @@ class Treep {
     root->setLeft(ls.second);
     return NP(ls.fisrt, root);
   }
+
   static Node* insert(Node* root, Node* node) {
     if (root == nullptr) return node;
     if (root->priority < node->priority) {
       NP splitted = split(root, node->key);
       node->setLeft(splitted.first);
-      node->setRigth(splitted.second);
+      node->setRight(splitted.second);
       return node;
     } else if (node->key < root->key) {
       root->setLeft(insert(root->left, node));
@@ -62,7 +64,7 @@ class Treep {
     root_ = insert(root_, new Node(value));
     size++;
   }
-  // only use max(a) < min(b)
+  only use max(a) < min(b)
   static Node* merge(Node* a, Node* b) {
     if (a == nullptr) return b;
     if (b == nullptr) return a;

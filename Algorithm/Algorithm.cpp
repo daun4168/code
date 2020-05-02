@@ -1,21 +1,21 @@
-template <typename T, typename U>
-auto max(T x, U y) -> decltype(x > y ? x : y) {
-  return x > y ? x : y;
+template<typename T>
+constexpr const T& max (const T& a, const T& b) {
+  return (a > b) ? a : b;
 }
 
-template <typename T, typename U>
-auto min(T x, U y) -> decltype(x < y ? x : y) {
-  return x < y ? x : y;
+template<typename T>
+constexpr const T& min (const T& a, const T& b) {
+  return !(a < b) ? b : a;
 }
 
-template <class T>
-constexpr T pow(const T x, unsigned const n) {
+template <typename T>
+constexpr const T pow(const T x, unsigned const n) {
   return n == 0 ? 1
                 : n % 2 == 0 ? pow(x * x, n / 2) : pow(x * x, (n - 1) / 2) * x;
 }
 
 template <typename T>
-void memset(T *s, const T c, unsigned long n) {
+void memset(T *s, const T& c, unsigned long n) {
   while (n--) *s++ = c;
 }
 
@@ -24,7 +24,6 @@ void memcpy(void *dest, const void *src, unsigned long count) {
   const char *s = static_cast<const char*>(src);
   while (count--) *tmp++ = *s++;
 }
-
 
 
 template <typename DataType>
@@ -152,7 +151,7 @@ class MultiMap {
     return;
   }
 
-  int add(int key, const DataType& data) {
+  void add(int key, const DataType& data) {
     unsigned long h = hash(key);
 
     if (_tb[h] != nullptr) {

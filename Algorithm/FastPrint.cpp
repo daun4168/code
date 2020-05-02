@@ -25,16 +25,16 @@ for (_k--; _k >= 0; _k--) putchar(_b[_k]);}} while (0)
 #define eol putchar('\n')
 #define space putchar(' ')
 
-using namespace std;
+// using namespace std;
 
-int main() {
-  std::ios::sync_with_stdio(false);
-  int C;
-  scan(C);
-  for (int c = 0; c < C; c++) {
+// int main() {
+//   std::ios::sync_with_stdio(false);
+//   int C;
+//   scan(C);
+//   for (int c = 0; c < C; c++) {
     
 
-  }
-  return 0;
-}
+//   }
+//   return 0;
+// }
 
