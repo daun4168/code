@@ -1,9 +1,27 @@
+#include <algorithm>
 #include <iostream>
+#include <vector>
+#include "../../Default.h"
+#include "../../IODefault.h"
 
-using namespace std;
+using namespace daun;
 
-int main(){
-  int i = -1;
-  int b = 4;
-  cout << i % b << endl;
+Vector<int> mkvector(){
+  Vector<int> a;
+  a.resize(10);
+  return a;
 }
+
+int main() {
+
+  Vector<Vector<int>> v;
+  // v.push_back(Vector<int>(10, 5));
+  v[0];
+  // v.push_back(Vector<int>(10, 7));
+  v.push_back(mkvector());
+  int a = 10;
+  std::cout << a;
+
+}
+
+

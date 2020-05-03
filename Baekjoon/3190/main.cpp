@@ -1,11 +1,6 @@
 #include <iostream>
 #include <queue>
 
-template <typename T>
-void initArray(T* arr, T value, unsigned long size) {
-  while (size--) *arr++ = value;
-}
-
 constexpr int MAX_N = 100;
 constexpr int MAX_K = 100;
 constexpr int MAX_L = 100;
@@ -60,14 +55,15 @@ class Board {
       return true;
     } 
 
-    map[y][x] = 'D';
-    snake.push(Dot(x, y));
-
     if(map[y][x] == '.'){
       Dot d = snake.front();
       snake.pop();
       map[d.y][d.x] = '.';
     }
+
+    map[y][x] = 'D';
+    snake.push(Dot(x, y));
+
     return false; 
   }
 

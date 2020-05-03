@@ -1,33 +1,10 @@
-template<typename T>
-constexpr const T& max (const T& a, const T& b) {
-  return (a > b) ? a : b;
-}
-
-template<typename T>
-constexpr const T& min (const T& a, const T& b) {
-  return !(a < b) ? b : a;
+template <typename T>
+void initArray(T* arr, T value, unsigned n) {
+  while (n--) *arr++ = value;
 }
 
 template <typename T>
-constexpr const T pow(const T x, unsigned const n) {
-  return n == 0 ? 1
-                : n % 2 == 0 ? pow(x * x, n / 2) : pow(x * x, (n - 1) / 2) * x;
-}
-
-template <typename T>
-void memset(T *s, const T& c, unsigned long n) {
-  while (n--) *s++ = c;
-}
-
-void memcpy(void *dest, const void *src, unsigned long count) {
-  char *tmp = static_cast<char*>(dest);
-  const char *s = static_cast<const char*>(src);
-  while (count--) *tmp++ = *s++;
-}
-
-
-template <typename DataType>
-void quickSort(DataType input[], int first, int last) {
+void quickSort(T input[], int first, int last) {
   int pivot;
   int i;
   int j;
@@ -61,10 +38,11 @@ void quickSort(DataType input[], int first, int last) {
   }
 }
 
-template <typename DataType>
-int removeDuplicate(DataType input[], int data_num) {
+// return new data_num
+template <typename T>
+int removeDuplicate(T input[], int data_num) {
   if (data_num <= 1) return data_num;
-  DataType before = input[0];
+  T before = input[0];
   int new_data_num = 1;
   for (int i = 1; i < data_num; i++) {
     if (input[i] == before) continue;
@@ -74,12 +52,12 @@ int removeDuplicate(DataType input[], int data_num) {
   return new_data_num;
 }
 
-template <typename DataType>
+template <typename T>
 class MultiMap {
  public:
   struct Node {
     int key = 0;
-    DataType* data = nullptr;
+    T* data = nullptr;
     int data_num = 0;
     int arr_size = 0;
     Node* next_node = nullptr;
@@ -90,10 +68,10 @@ class MultiMap {
     }
   };
 
-  MultiMap(int size = 500) {
-    this->_size = size;
-    _tb = new Node*[size];
-    for (int i = 0; i < size; i++) {
+  explicit MultiMap(int n = 500) {
+    this->_size = n;
+    _tb = new Node*[n];
+    for (int i = 0; i < n; i++) {
       _tb[i] = nullptr;
     }
   }
@@ -109,10 +87,10 @@ class MultiMap {
     delete[] _tb;
   }
 
-  unsigned long hash(const int i) { return (i * 2654435761ll) % _size; }
+  unsigned hash(const int i) { return (i * 2654435761ll) % _size; }
 
   Node* find(const int key) {
-    unsigned long h = hash(key);
+    unsigned h = hash(key);
 
     Node* next_node = _tb[h];
     while (next_node != nullptr) {
@@ -126,7 +104,7 @@ class MultiMap {
 
   void remove(const int key) {
     if (find(key) == nullptr) return;
-    unsigned long h = hash(key);
+    unsigned h = hash(key);
     if (_tb[h] == nullptr) return;
 
     if (_tb[h]->key == key) {
@@ -151,8 +129,8 @@ class MultiMap {
     return;
   }
 
-  void add(int key, const DataType& data) {
-    unsigned long h = hash(key);
+  void add(int key, const T& data) {
+    unsigned h = hash(key);
 
     if (_tb[h] != nullptr) {
       Node* last_node = _tb[h];
@@ -164,7 +142,7 @@ class MultiMap {
           is_append = true;
 
           if (next_node->data_num >= next_node->arr_size) {
-            DataType* new_data = new DataType[next_node->arr_size * 2];
+            T* new_data = new T[next_node->arr_size * 2];
             for (int i = 0; i < next_node->data_num; i++) {
               new_data[i] = next_node->data[i];
             }
@@ -183,7 +161,7 @@ class MultiMap {
       if (!is_append) {
         Node* new_node = new Node;
         new_node->key = key;
-        new_node->data = new DataType[1];
+        new_node->data = new T[1];
         new_node->data[0] = data;
         new_node->data_num = 1;
         new_node->arr_size = 1;
@@ -192,59 +170,50 @@ class MultiMap {
     } else {
       Node* new_node = new Node;
       new_node->key = key;
-      new_node->data = new DataType[1];
+      new_node->data = new T[1];
       new_node->data[0] = data;
       new_node->data_num = 1;
       new_node->arr_size = 1;
       _tb[h] = new_node;
     }
   }
+
+ private:
   Node** _tb;
   int _size;
 };
 
-// NOT IMPLEMENTED
-template <typename DataType>
-class Vector {
- public:
-  Vector() {}
-  ~Vector() { delete[] _arr; }
-  int size() { return _size; }
 
- private:
-  int _size = 0;
-  DataType* _arr = nullptr;
-  int _arr_size = 0;
-};
+// template <typename T>
+// class Deque {
+//  public:
+//   Deque() {}
+//   ~Deque() {}
+//   Deque& operator=(const Deque& x) {}  // copy
+//   Deque& operator=(Deque&& x) {}       // move
 
-#include <iostream>
-using namespace std;
-int main() {
-  MultiMap<double> map(100);
-  map.add(1, 10.2);
-  map.add(2, 10.5);
-  map.add(1, 20.2);
-  map.remove(2);
-  map.add(2, 40.1);
+//   unsigned size() {}
+//   void resize(unsigned n) {}
+//   void resize(unsigned n, const T& val) {}
+//   bool empty() {}
 
-  auto f1 = map.find(1);
-  auto f2 = map.find(2);
+//   T& front() {}
+//   T& back() {}
+//   void push_back(const T& val) {}
+//   void push_back(T&& val) {}
+//   void push_front(const T& val) {}
+//   void push_front(T&& val) {}
+//   void pop_back() {}
+//   void pop_front() {}
+//   void clear() {}
 
-  for (int i = 0; i < f1->data_num; i++) {
-    cout << f1->data[i] << endl;
-  }
+//   bool operator==(const Deque& x) {}  // is same
+//   bool operator!=(const Deque& x) {}  // is same
 
-  for (int i = 0; i < f2->data_num; i++) {
-    cout << f2->data[i] << endl;
-  }
-  int a[10] = {15, 3, 5, 700, 3, 6, 7, 8, 9, 10};
-  quickSort(a, 0, 10);
-  for (auto i : a) {
-    cout << i << endl;
-  }
-  cout << "--------------------------\n";
-  int data_num = removeDuplicate(a, 10);
-  for (int i = 0; i < data_num; i++) {
-    cout << a[i] << endl;
-  }
-}
+//  private:
+//   T* _arr = nullptr;
+//   unsigned _size = 0;
+//   unsigned _capacity = 0;
+//   unsigned _front_idx = 0;
+//   unsigned _back_idx = 0;
+// };
