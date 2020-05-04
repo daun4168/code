@@ -1,6 +1,7 @@
 // Copyright 2020 Daun Jeong
 // Author: Daun Jeong
 #pragma once
+#include <iostream>
 
 namespace daun {
 template <typename T>
@@ -98,7 +99,7 @@ class Vector {
   Vector(const Vector& x)  // copy
       : _size(x.size()),
         _capacity(x.capacity()),
-        _arr(x.capacity() ? new T[x.capacity()] : nullptr) {
+        _ptr(x.capacity() ? new T[x.capacity()] : nullptr) {
     copy(x.begin(), x.end(), this->begin());
   }
   Vector(Vector&& x) : Vector() {  // move
@@ -106,8 +107,8 @@ class Vector {
     swap(*this, x);
   }
   ~Vector() {
-    delete[] _arr;
-    _arr = nullptr;
+    delete[] _ptr;
+    _ptr = nullptr;
   }
   Vector& operator=(Vector x) {  // copy & move
     using daun::swap;
@@ -115,26 +116,26 @@ class Vector {
     return *this;
   }
 
-  T* begin() { return _arr; }
-  T* const begin() const { return _arr; }
-  T* end() { return _arr + _size; }
-  T* const end() const { return _arr + _size; }
-  T* const cbegin() const { return _arr; }
-  T* const cend() const { return _arr + _size; }
+  T* begin() { return _ptr; }
+  T* const begin() const { return _ptr; }
+  T* end() { return _ptr + _size; }
+  T* const end() const { return _ptr + _size; }
+  T* const cbegin() const { return _ptr; }
+  T* const cend() const { return _ptr + _size; }
 
   unsigned size() const { return _size; }
   void resize(unsigned n) {
     if (n > size()) {
       _default_append(n - size());
     } else if (n < size()) {
-      _erase_at_end(this->_arr + n);
+      _erase_at_end(this->_ptr + n);
     }
   }
   void resize(unsigned n, const T& val) {
     if (n > size()) {
       _val_append(n - size(), val);
     } else if (n < size()) {
-      _erase_at_end(this->_arr + n);
+      _erase_at_end(this->_ptr + n);
     }
   }
   bool empty() const { return begin() == end(); }
@@ -156,38 +157,38 @@ class Vector {
         _capacity *= 2;
       }
     }
-    swap(_arr[_size], val);
+    swap(_ptr[_size], val);
     _size++;
   }
   void pop_back() {
     if (!empty()) {
       _size--;
-      destroy(_arr + _size);
+      destroy(_ptr + _size);
     }
   }
   void clear() {
-    delete[] _arr;
-    _arr = nullptr;
+    delete[] _ptr;
+    _ptr = nullptr;
     _size = 0;
     _capacity = 0;
   }
 
-  T& operator[](unsigned n) { return *(_arr + n); }
-  const T& operator[](unsigned n) const { return *(_arr + n); }
+  T& operator[](unsigned n) { return *(_ptr + n); }
+  const T& operator[](unsigned n) const { return *(_ptr + n); }
 
   void swap(Vector& x) {
     using daun::swap;
     swap(this->_size, x._size);
     swap(this->_capacity, x._capacity);
-    swap(this->_arr, x._arr);
+    swap(this->_ptr, x._ptr);
   }
 
  private:
   void _reallocate(unsigned n) {
     T* new_arr = new T[n];
     copy(begin(), end(), new_arr);
-    delete[] _arr;
-    _arr = new_arr;
+    delete[] _ptr;
+    _ptr = new_arr;
   }
   void _check_capacity(unsigned n) {
     if (n > _capacity) {
@@ -203,7 +204,7 @@ class Vector {
   }
   void _val_append(unsigned n, const T& val) {
     _check_capacity(_size + n);
-    T* p = _arr + _size;
+    T* p = _ptr + _size;
     for (unsigned i = 0; i < n; i++){
       *p++ = val;
     }
@@ -215,7 +216,7 @@ class Vector {
     _size -= n;
   }
 
-  T* _arr{nullptr};
+  T* _ptr{nullptr};
   unsigned _size{0};
   unsigned _capacity{0};
 };
