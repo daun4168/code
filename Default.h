@@ -4,6 +4,10 @@
 #include <iostream>
 
 namespace daun {
+
+typedef long unsigned int size_t;
+typedef long int ptrdiff_t;
+
 template <typename T>
 struct remove_reference {
   typedef T type;
@@ -18,6 +22,85 @@ template <typename T>
 struct remove_reference<T&&> {
   typedef T type;
 };
+
+/// remove_const
+template <typename T>
+struct remove_const {
+  typedef T type;
+};
+
+template <typename T>
+struct remove_const<T const> {
+  typedef T type;
+};
+
+/// remove_volatile
+template <typename T>
+struct remove_volatile {
+  typedef T type;
+};
+
+template <typename T>
+struct remove_volatile<T volatile> {
+  typedef T type;
+};
+
+/// remove_cv
+template <typename T>
+struct remove_cv {
+  typedef typename remove_const<typename remove_volatile<T>::type>::type type;
+};
+
+/// add_const
+template <typename T>
+struct add_const {
+  typedef T const type;
+};
+
+/// add_volatile
+template <typename T>
+struct add_volatile {
+  typedef T volatile type;
+};
+
+/// add_cv
+template <typename T>
+struct add_cv {
+  typedef typename add_const<typename add_volatile<T>::type>::type type;
+};
+
+/// Alias template for remove_const
+template <typename T>
+using remove_const_t = typename remove_const<T>::type;
+
+/// Alias template for remove_volatile
+template <typename T>
+using remove_volatile_t = typename remove_volatile<T>::type;
+
+/// Alias template for remove_cv
+template <typename T>
+using remove_cv_t = typename remove_cv<T>::type;
+
+/// Alias template for add_const
+template <typename T>
+using add_const_t = typename add_const<T>::type;
+
+/// Alias template for add_volatile
+template <typename T>
+using add_volatile_t = typename add_volatile<T>::type;
+
+/// Alias template for add_cv
+template <typename T>
+using add_cv_t = typename add_cv<T>::type;
+
+/// Alias template for remove_reference
+template <typename T>
+using remove_reference_t = typename remove_reference<T>::type;
+
+/// Alias template for remove_reference and cv
+template <typename T>
+using remove_c_ref_t =
+    typename remove_const<typename remove_reference<T>::type>::type;
 
 template <typename T>
 constexpr typename remove_reference<T>::type&& move(T&& t) noexcept {
@@ -45,6 +128,11 @@ void destroy(T* p) {
 template <typename T>
 void destroy(T* first, T* last) {
   for (; first != last; ++first) destroy(first);
+}
+
+template <typename T>
+void destroy(T first, T last) {
+  for (; first != last; ++first) destroy(&(*first));
 }
 
 template <typename T>
@@ -86,139 +174,352 @@ void* memcpy(void* dest, const void* src, unsigned n) {
   return dest;
 }
 
+/* normal_iterator  */
+template <typename IterType, typename ValueType, typename Container>
+class normal_iterator {
+ public:
+  typedef IterType iterator_type;
+  typedef ValueType value_type;
+  typedef ptrdiff_t difference_type;
+  typedef ValueType& reference;
+  typedef ValueType* pointer;
+
+ protected:
+  IterType _current;
+
+ public:
+  constexpr normal_iterator() noexcept : _current(IterType()) {}
+  explicit normal_iterator(const IterType& it) noexcept : _current(it) {}
+
+  // Allow iterator to const_iterator conversion
+  template <typename IterT>
+  normal_iterator(const normal_iterator<IterT, remove_const_t<value_type>,
+                                        Container>& it) noexcept
+      : _current(it.base()) {}
+
+  // Forward iterator requirements
+  reference operator*() const noexcept { return *_current; }
+  pointer operator->() const noexcept { return _current; }
+  normal_iterator& operator++() noexcept {
+    ++_current;
+    return *this;
+  }
+  normal_iterator operator++(int) noexcept {
+    return normal_iterator(_current++);
+  }
+
+  // Bidirectional iterator requirements
+  normal_iterator& operator--() noexcept {
+    --_current;
+    return *this;
+  }
+  normal_iterator operator--(int) noexcept {
+    return normal_iterator(_current--);
+  }
+
+  // Random access iterator requirements
+  reference operator[](difference_type n) const noexcept { return _current[n]; }
+  normal_iterator& operator+=(difference_type n) noexcept {
+    _current += n;
+    return *this;
+  }
+  normal_iterator operator+(difference_type n) const noexcept {
+    return normal_iterator(_current + n);
+  }
+  normal_iterator& operator-=(difference_type n) noexcept {
+    _current -= n;
+    return *this;
+  }
+  normal_iterator operator-(difference_type n) const noexcept {
+    return normal_iterator(_current - n);
+  }
+
+  const IterType& base() const noexcept { return _current; }
+};
+
+// Forward iterator requirements
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator==(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() == rhs.base();
+}
+
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator!=(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() != rhs.base();
+}
+
+// Random access iterator requirements
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator<(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() < rhs.base();
+}
+
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator>(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() > rhs.base();
+}
+
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator<=(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() <= rhs.base();
+}
+
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline bool operator>=(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept {
+  return lhs.base() >= rhs.base();
+}
+
+template <typename IterTypeL, typename IterTypeR, typename ValueTypeL,
+          typename ValueTypeR, typename Container>
+inline auto operator-(
+    const normal_iterator<IterTypeL, ValueTypeL, Container>& lhs,
+    const normal_iterator<IterTypeR, ValueTypeR, Container>& rhs) noexcept
+    -> decltype(lhs.base() - rhs.base()) {
+  return lhs.base() - rhs.base();
+}
+
+template <typename IterType, typename ValueType, typename Container>
+inline normal_iterator<IterType, ValueType, Container> operator+(
+    typename normal_iterator<IterType, ValueType, Container>::difference_type n,
+    const normal_iterator<IterType, ValueType, Container>& it) noexcept {
+  return normal_iterator<IterType, ValueType, Container>(it.base() + n);
+}
+/*  END OF normal_iterator  */
+
 template <typename T>
 class Vector {
  public:
-  Vector() = default;                       // default
-  explicit Vector(unsigned n) : Vector() {  // fill 1
-    resize(n);
-  }
-  explicit Vector(unsigned n, const T& val) : Vector() {  // fill 2
+  typedef T value_type;
+  typedef const T const_value_type;
+  typedef T* pointer;
+  typedef const T* const_pointer;
+  typedef T& reference;
+  typedef const T& const_reference;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
+
+  typedef normal_iterator<pointer, value_type, Vector> iterator;
+  typedef normal_iterator<const_pointer, const_value_type, Vector>
+      const_iterator;
+  // typedef  const_reverse_iterator;
+  // typedef  reverse_iterator;
+
+ private:
+  pointer _start{nullptr};
+  pointer _finish{nullptr};
+  pointer _end_of_storage{nullptr};
+
+ public:
+  // Default Constructor
+  Vector() = default;
+
+  // Fill Constructor
+  explicit Vector(size_type n) : Vector() { resize(n); }
+
+  // Fill Constructor 2
+  explicit Vector(size_type n, const_reference val) : Vector() {
     resize(n, val);
   }
-  Vector(const Vector& x)  // copy
-      : _size(x.size()),
-        _capacity(x.capacity()),
-        _ptr(x.capacity() ? new T[x.capacity()] : nullptr) {
-    copy(x.begin(), x.end(), this->begin());
+
+  // Copy Constructor
+  Vector(const Vector& x) : Vector() {
+    const size_type size = x.size();
+    const size_type capacity = x.capacity();
+    pointer tmp = _allocate_and_copy(capacity, x.begin(), x.end());
+    _start = tmp;
+    _finish = tmp + size;
+    _end_of_storage = _start + capacity;
   }
-  Vector(Vector&& x) : Vector() {  // move
+
+  // Move Constructor
+  Vector(Vector&& x) : Vector() {
     using daun::swap;
     swap(*this, x);
   }
+
+  // Destructor
   ~Vector() {
-    delete[] _ptr;
-    _ptr = nullptr;
+    destroy(_start, _finish);
+    _deallocate(_start, _end_of_storage - _start);
   }
-  Vector& operator=(Vector x) {  // copy & move
+
+  // Assignment Operator
+  Vector& operator=(Vector x) {
     using daun::swap;
     swap(*this, x);
     return *this;
   }
 
-  T* begin() { return _ptr; }
-  T* const begin() const { return _ptr; }
-  T* end() { return _ptr + _size; }
-  T* const end() const { return _ptr + _size; }
-  T* const cbegin() const { return _ptr; }
-  T* const cend() const { return _ptr + _size; }
+  iterator begin() { return iterator(_start); }
+  const_iterator begin() const { return const_iterator(_start); }
+  iterator end() { return iterator(_finish); }
+  const_iterator end() const { return const_iterator(_finish); }
+  const_iterator cbegin() const { return const_iterator(_start); }
+  const_iterator cend() const { return const_iterator(_finish); }
 
-  unsigned size() const { return _size; }
-  void resize(unsigned n) {
-    if (n > size()) {
-      _default_append(n - size());
-    } else if (n < size()) {
-      _erase_at_end(this->_ptr + n);
+  // Returns the number of elements
+  size_type size() const { return size_type(_finish - _start); }
+
+  // Resizes the Vector to the specified number of elements.
+  void resize(size_type new_size) {
+    if (new_size > size()) {
+      _default_append(new_size - size());
+    } else if (new_size < size()) {
+      _erase_at_end(this->_start + new_size);
     }
   }
-  void resize(unsigned n, const T& val) {
-    if (n > size()) {
-      _val_append(n - size(), val);
-    } else if (n < size()) {
-      _erase_at_end(this->_ptr + n);
+
+  // Resizes the Vector to the specified number of elements and fill with val.
+  void resize(size_type new_size, const_reference val) {
+    if (new_size > size()) {
+      _val_append(new_size - size());
+    } else if (new_size < size()) {
+      _erase_at_end(this->_start + new_size);
     }
   }
+
+  // Returns the total number of elements that the Vector can
+  // hold before needing to allocate more memory.
+  size_type capacity() const { return size_type(_end_of_storage - _start); }
+
+  // Returns true if the Vector is empty.
   bool empty() const { return begin() == end(); }
-  unsigned capacity() const { return _capacity; }
-  void reserve(unsigned n) {
-    if (capacity() < n) _reallocate(n);
+
+  // This function attempts to reserve enough memory for the
+  // Vector to hold the specified number of elements.
+  void reserve(size_type n) {
+    if (capacity() < n) {
+      const size_type old_size = size();
+      pointer tmp = _allocate_and_copy(n, _start, _finish);
+      destroy(_start, _finish);
+      delete[] _start;
+      _start = tmp;
+      _finish = tmp + old_size;
+      _end_of_storage = _start + n;
+    }
   }
 
-  T& front() { return *begin(); }
-  T& back() { return *(end() - 1); }
-  void push_back(T val) {
+  // Returns a read/write reference to the data at the first element of the
+  // Vector.
+  reference front() { return *begin(); }
+
+  // Returns a read only reference to the data at the first element of the
+  // Vector.
+  reference front() const { return *begin(); }
+
+  // Returns a read/write reference to the data at the last element of the
+  // Vector.
+  reference back() { return *(end() - 1); }
+
+  // Returns a read only reference to the data at the last element of the
+  // Vector.
+  reference back() const { return *(end() - 1); }
+
+  // Returns a direct pointer to the memory
+  pointer data() noexcept { return _start; }
+
+  // Returns a direct const pointer to the memory
+  const_pointer data() const noexcept { return _start; }
+
+  // // Assigns a given value to a Vector.
+  // void assign(size_type n, const value_type& val) { _fill_assign(n, val); }
+
+  // Add data to the end of the Vector.
+  void push_back(value_type val) {
     using daun::swap;
-    if (_size >= _capacity) {
-      if (_capacity == 0) {
-        _reallocate(1);
-        _capacity = 1;
-      } else {
-        _reallocate(_capacity * 2);
-        _capacity *= 2;
-      }
+    if (size() >= capacity()) {
+      size_type new_capacity = capacity() == 0 ? 1 : capacity() * 2;
+      reserve(new_capacity);
     }
-    swap(_ptr[_size], val);
-    _size++;
+    swap(*_finish, val);
+    _finish++;
   }
+
+  // Removes last element.
   void pop_back() {
     if (!empty()) {
-      _size--;
-      destroy(_ptr + _size);
+      _finish--;
+      destroy(_finish);
     }
   }
+
+  // Erases all the elements.
   void clear() {
-    delete[] _ptr;
-    _ptr = nullptr;
-    _size = 0;
-    _capacity = 0;
+    destroy(_start, _finish);
+    _deallocate(_start, _end_of_storage - _start);
+    _start = nullptr;
+    _finish = nullptr;
+    _end_of_storage = nullptr;
   }
 
-  T& operator[](unsigned n) { return *(_ptr + n); }
-  const T& operator[](unsigned n) const { return *(_ptr + n); }
+  // Subscript access to the data contained in the Vector.
+  // @return  Read/write reference to data.
+  reference operator[](size_type n) { return *(_start + n); }
 
+  // Subscript access to the data contained in the Vector.
+  // @return  Read only reference to data.
+  const_reference operator[](size_type n) const { return *(_start + n); }
+
+  // Swaps data with another Vector.
   void swap(Vector& x) {
     using daun::swap;
-    swap(this->_size, x._size);
-    swap(this->_capacity, x._capacity);
-    swap(this->_ptr, x._ptr);
+    swap(this->_start, x._start);
+    swap(this->_finish, x._finish);
+    swap(this->_end_of_storage, x._end_of_storage);
   }
 
- private:
-  void _reallocate(unsigned n) {
-    T* new_arr = new T[n];
-    copy(begin(), end(), new_arr);
-    delete[] _ptr;
-    _ptr = new_arr;
-  }
-  void _check_capacity(unsigned n) {
-    if (n > _capacity) {
-      _reallocate(n);
-    }
-    _capacity = n;
-  }
-  void _default_append(unsigned n) {
-    _check_capacity(_size + n);
-    T* p = end();
-    for (unsigned i = 0; i < n; i++) *p++ = T();
-    _size = _size + n;
-  }
-  void _val_append(unsigned n, const T& val) {
-    _check_capacity(_size + n);
-    T* p = _ptr + _size;
-    for (unsigned i = 0; i < n; i++){
-      *p++ = val;
-    }
-    _size = _size + n;
-  }
-  void _erase_at_end(T* pos) {
-    unsigned n = end() - pos;
-    destroy(pos, end());
-    _size -= n;
+ protected:
+  void _default_append(size_type n) {
+    if (n == 0) return;
+    reserve(size() + n);
+    pointer p = _finish;
+    for (size_type i = 0; i < n; i++) *p++ = value_type();
+    _finish = _finish + n;
   }
 
-  T* _ptr{nullptr};
-  unsigned _size{0};
-  unsigned _capacity{0};
+  void _val_append(size_type n, const_reference val) {
+    if (n == 0) return;
+    reserve(size() + n);
+    pointer p = _finish;
+    for (size_type i = 0; i < n; i++) *p++ = val;
+    _finish = _finish + n;
+  }
+
+  void _erase_at_end(pointer pos) noexcept {
+    destroy(pos, _finish);
+    _finish = pos;
+  }
+
+  template <typename Iter>
+  pointer _allocate_and_copy(size_type n, Iter first, Iter last) {
+    pointer result = _allocate(n);
+    copy(first, last, result);
+    return result;
+  }
+
+  pointer _allocate(size_type n) {
+    return n != 0 ? new value_type[n] : pointer();
+  }
+
+  void _deallocate(pointer ptr, size_type n) { delete[] ptr; }
 };
 
 template <typename T>
