@@ -335,7 +335,7 @@ class Vector {
   explicit Vector(size_type n) : Vector() { resize(n); }
 
   // Fill Constructor 2
-  explicit Vector(size_type n, const_reference val) : Vector() {
+  explicit Vector(size_type n, const value_type& val) : Vector() {
     resize(n, val);
   }
 
@@ -356,10 +356,7 @@ class Vector {
   }
 
   // Destructor
-  ~Vector() {
-    destroy(_start, _finish);
-    _deallocate(_start, _end_of_storage - _start);
-  }
+  ~Vector() { clear(); }
 
   // Assignment Operator
   Vector& operator=(Vector x) {
@@ -388,9 +385,9 @@ class Vector {
   }
 
   // Resizes the Vector to the specified number of elements and fill with val.
-  void resize(size_type new_size, const_reference val) {
+  void resize(size_type new_size, const value_type& val) {
     if (new_size > size()) {
-      _val_append(new_size - size());
+      _val_append(new_size - size(), val);
     } else if (new_size < size()) {
       _erase_at_end(this->_start + new_size);
     }
@@ -439,8 +436,17 @@ class Vector {
   // Returns a direct const pointer to the memory
   const_pointer data() const noexcept { return _start; }
 
-  // // Assigns a given value to a Vector.
-  // void assign(size_type n, const value_type& val) { _fill_assign(n, val); }
+  // Assigns n of given values to a Vector.
+  void assign(size_type n, const value_type& val) {
+    destroy(_start, _finish);
+    if (capacity() < n) {
+      _deallocate(_start, _end_of_storage - _start);
+      _create_storage(n);
+    }
+    pointer p = _start;
+    for (size_type i = 0; i < n; i++) *p++ = val;
+    _finish = _start + n;
+  }
 
   // Add data to the end of the Vector.
   void push_back(value_type val) {
@@ -520,6 +526,12 @@ class Vector {
   }
 
   void _deallocate(pointer ptr, size_type n) { delete[] ptr; }
+
+  void _create_storage(size_type n) {
+    _start = _allocate(n);
+    _finish = _start;
+    _end_of_storage = _start + n;
+  }
 };
 
 template <typename T>

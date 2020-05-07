@@ -3,11 +3,15 @@
 #include <vector>
 #include <deque>
 #include <cxxabi.h>
+#include <forward_list>
 #include "../../IODefault.h"
 
 
 using namespace daun;
 
+Vector<int> make_vector(){
+  return Vector<int>(3, 10);
+}
 
 int main() {
 
@@ -36,11 +40,20 @@ int main() {
   v1.resize(5);
   std::cout << v1 << std::endl;
 
-  std::vector<int> vc;
-  
+  v1.assign(7, 7);
+  std::cout << v1 << std::endl;
+
+  v1.assign(3, 3);
+  std::cout << v1 << std::endl;
 
 
+  Vector<Vector<int>> v4;
+  v4.push_back(move(make_vector()));
 
+  std::vector<int> vv;
+  std::forward_list<int> flist;
+  vv.erase( std::remove(vv.begin(), vv.end(), 1234), vv.end() );
+  std::remove(flist.begin(), flist.end(), 1234);
 }
 
 
