@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 
 int fun(int *i) {
   *i += 7;
@@ -12,4 +13,6 @@ int main() {
   // x = x - fun(&x);
   x = -(fun(&x) - x);
   printf("%d\n", x);
+
+  std::cout << boost::typeindex::type_id<int>().pretty_name() << std::endl;
 }

@@ -3,22 +3,12 @@
 #include <vector>
 #include <deque>
 #include <cxxabi.h>
+#include <boost/type_index.hpp>
 
 
-template <typename T>
-void destroy(T* p) {
-  p->~T();
-}
-
-template <typename T>
-void destroy(T* first, T* last) {
-  for (; first != last; ++first) destroy(first);
-}
-
-template <typename T>
-void destroy(T first, T last) {
-  for (; first != last; ++first) destroy(&(*first));
-}
+class A{};
+class B :public A{};
+class C : public B{};
 
 int main() {
   // std::vector<int> v;
@@ -28,12 +18,6 @@ int main() {
   // if(i == nullptr){
   //   std::cout << "NULL!!" << std::endl;
   // }
-
-
-  int* i = nullptr;
-  int* i2 = nullptr;
-  auto i3 = i - i2;
-  std::cout << i3 << std::endl;
 }
 
 

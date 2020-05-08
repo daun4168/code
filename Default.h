@@ -23,7 +23,7 @@ struct remove_reference<T&&> {
   typedef T type;
 };
 
-/// remove_const
+// remove_const
 template <typename T>
 struct remove_const {
   typedef T type;
@@ -34,7 +34,7 @@ struct remove_const<T const> {
   typedef T type;
 };
 
-/// remove_volatile
+// remove_volatile
 template <typename T>
 struct remove_volatile {
   typedef T type;
@@ -45,59 +45,59 @@ struct remove_volatile<T volatile> {
   typedef T type;
 };
 
-/// remove_cv
+// remove_cv
 template <typename T>
 struct remove_cv {
   typedef typename remove_const<typename remove_volatile<T>::type>::type type;
 };
 
-/// add_const
+// add_const
 template <typename T>
 struct add_const {
   typedef T const type;
 };
 
-/// add_volatile
+// add_volatile
 template <typename T>
 struct add_volatile {
   typedef T volatile type;
 };
 
-/// add_cv
+// add_cv
 template <typename T>
 struct add_cv {
   typedef typename add_const<typename add_volatile<T>::type>::type type;
 };
 
-/// Alias template for remove_const
+// Alias template for remove_const
 template <typename T>
 using remove_const_t = typename remove_const<T>::type;
 
-/// Alias template for remove_volatile
+// Alias template for remove_volatile
 template <typename T>
 using remove_volatile_t = typename remove_volatile<T>::type;
 
-/// Alias template for remove_cv
+// Alias template for remove_cv
 template <typename T>
 using remove_cv_t = typename remove_cv<T>::type;
 
-/// Alias template for add_const
+// Alias template for add_const
 template <typename T>
 using add_const_t = typename add_const<T>::type;
 
-/// Alias template for add_volatile
+// Alias template for add_volatile
 template <typename T>
 using add_volatile_t = typename add_volatile<T>::type;
 
-/// Alias template for add_cv
+// Alias template for add_cv
 template <typename T>
 using add_cv_t = typename add_cv<T>::type;
 
-/// Alias template for remove_reference
+// Alias template for remove_reference
 template <typename T>
 using remove_reference_t = typename remove_reference<T>::type;
 
-/// Alias template for remove_reference and cv
+// Alias template for remove_reference and cv
 template <typename T>
 using remove_c_ref_t =
     typename remove_const<typename remove_reference<T>::type>::type;
@@ -174,7 +174,24 @@ void* memcpy(void* dest, const void* src, unsigned n) {
   return dest;
 }
 
-/* normal_iterator  */
+// Marking input iterators.
+struct input_iterator_tag {};
+
+// Marking output iterators.
+struct output_iterator_tag {};
+
+// Forward iterators support a superset of input iterator operations.
+struct forward_iterator_tag : public input_iterator_tag {};
+
+// Bidirectional iterators support a superset of forward iterator
+// operations.
+struct bidirectional_iterator_tag : public forward_iterator_tag {};
+
+// Random-access iterators support a superset of bidirectional
+// iterator operations.
+struct random_access_iterator_tag : public bidirectional_iterator_tag {};
+
+/* normal_iterator */
 template <typename IterType, typename ValueType, typename Container>
 class normal_iterator {
  public:
@@ -183,6 +200,7 @@ class normal_iterator {
   typedef ptrdiff_t difference_type;
   typedef ValueType& reference;
   typedef ValueType* pointer;
+  typedef random_access_iterator_tag iterator_tag;
 
  protected:
   IterType _current;
@@ -448,6 +466,11 @@ class Vector {
     _finish = _start + n;
   }
 
+  // Assigns a range to a Vector
+  template <typename InputIter,
+            typename = std::_RequireInputIter<_InputIterator>>
+  void assign(_InputIterator __first, _InputIterator __last) {}
+
   // Add data to the end of the Vector.
   void push_back(value_type val) {
     using daun::swap;
@@ -525,7 +548,9 @@ class Vector {
     return n != 0 ? new value_type[n] : pointer();
   }
 
-  void _deallocate(pointer ptr, size_type n) { delete[] ptr; }
+  void _deallocate(pointer ptr, size_type n) {
+    if (n != 0) delete[] ptr;
+  }
 
   void _create_storage(size_type n) {
     _start = _allocate(n);
