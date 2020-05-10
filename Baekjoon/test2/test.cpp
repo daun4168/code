@@ -1,24 +1,30 @@
-#include <algorithm>
+#include <type_traits>
 #include <iostream>
-#include <vector>
-#include <deque>
-#include <cxxabi.h>
-#include <boost/type_index.hpp>
+#include <concepts>
 
+template< class T, class U >
+concept SameHelper = std::is_same_v<T, U>;
 
-class A{};
-class B :public A{};
-class C : public B{};
+// template< class T, class U >
+// concept my_same_as = SameHelper<T, U>;
 
-int main() {
-  // std::vector<int> v;
-  // typedef int* pint;
-  // auto i = pint();
-  // int b = 5;
-  // if(i == nullptr){
-  //   std::cout << "NULL!!" << std::endl;
-  // }
+template < class T >
+concept integral = std::is_integral_v<T>;
+
+template< class T, class U >
+concept my_same_as = SameHelper<T, U> && SameHelper<U, T>;
+
+template< class T, class U> requires my_same_as<U, T>
+void foo(T a, U b) {
+    std::cout << "Not integral" << std::endl;
 }
 
+template< class T, class U> requires (my_same_as<T, U> && integral<T>)
+void foo(T a, U b) {
+    std::cout << "Integral" << std::endl;
+}
 
-
+int main() {
+    foo(1, 2);
+    return 0;
+}

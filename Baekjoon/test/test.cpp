@@ -6,7 +6,6 @@
 #include <forward_list>
 #include "../../IODefault.h"
 
-
 using namespace daun;
 
 int main() {

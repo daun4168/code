@@ -6,6 +6,11 @@ constexpr int MAX_K = 100;
 constexpr int MAX_L = 100;
 constexpr int MAX_MOVE = 10500;
 
+template <typename T>
+void initArray(T* arr, T value, unsigned n) {
+  while (n--) *arr++ = value;
+}
+
 enum {
   RIGHT = 0,
   DOWN = 1,

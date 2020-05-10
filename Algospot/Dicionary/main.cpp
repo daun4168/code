@@ -21,7 +21,6 @@
 #include <utility>
 #include <vector>
 
-
 using namespace std;
 
 int arr[26][26];
