@@ -467,9 +467,9 @@ class Vector {
   }
 
   // Assigns a range to a Vector
-  template <typename InputIter,
-            typename = std::_RequireInputIter<_InputIterator>>
-  void assign(_InputIterator __first, _InputIterator __last) {}
+  // template <typename InputIter,
+  //           typename = std::_RequireInputIter<_InputIterator>>
+  // void assign(_InputIterator __first, _InputIterator __last) {}
 
   // Add data to the end of the Vector.
   void push_back(value_type val) {

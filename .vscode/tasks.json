@@ -15,7 +15,7 @@
 				"-O2",
 				"-Wall",
 				"-lm",
-				"-static",
+				//"-static",
 				"-std=gnu++2a",
 			],
 			"options": {
@@ -44,9 +44,10 @@
 				"-O2",
 				"-Wall",
 				"-lm",
-				"-static",
+				//"-static",
 				"-std=gnu++2a",
-
+				"-pthread",
+				"-ltcmalloc_minimal",
 				"&& echo 'build c++'; } || :",
 			],
 			"group": "none"

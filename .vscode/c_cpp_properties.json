@@ -5,21 +5,26 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/include/boost",
-                "/usr/include"
+                "/usr/include/**"
             ],
+            "defines": [ 
+                "__cpp_concepts=201907L",
+                "__cplusplus=201907L"
+                
+            ],
+            
             "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": true,
                 "path": [
                     "${workspaceFolder}/**",
                     "/usr/include/boost",
-                    "/usr/include"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
+                    "/usr/include/**"
+                ]
             },
-            "defines": [],
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c11",
-            "cppStandard": "c++20",
+            "cppStandard":"gnu++20",
             "intelliSenseMode": "gcc-x64"
         }
     ],
